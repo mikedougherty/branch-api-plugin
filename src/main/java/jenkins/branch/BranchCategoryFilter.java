@@ -26,11 +26,13 @@ package jenkins.branch;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.model.Descriptor;
+import hudson.model.Job;
 import hudson.model.TopLevelItem;
 import hudson.model.View;
 import hudson.model.ViewGroup;
 import hudson.views.ViewJobFilter;
 import java.util.List;
+import jenkins.scm.api.SCMHead;
 import jenkins.scm.api.SCMHeadCategory;
 
 /**
@@ -75,7 +77,19 @@ public class BranchCategoryFilter extends ViewJobFilter {
                 if (!factory.isProject(item)) {
                     continue;
                 }
-                if (category.isMatch(factory.getBranch(factory.asProject(item)).getHead(), categories)) {
+                Job<?, ?> proj = factory.asProject(item);
+                if (proj == null) {
+                    continue;
+                }
+                Branch branch = factory.getBranch(proj);
+                if (branch == null) {
+                    continue;
+                }
+                SCMHead head = branch.getHead();
+                if (head == null) {
+                    continue;
+                }
+                if (category.isMatch(head, categories)) {
                     added.add(item);
                 }
             }
